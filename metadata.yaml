@@ -1,0 +1,6 @@
+name: astrbot_plugin_daily_outfit
+display_name: "每日穿搭衣柜"
+desc: "9部位模块化每日穿搭衣柜插件——支持天气感知自动配装、实时衣损状态同步、QuickTag词库检索与WebUI换装管理。"
+version: "v2.0.0"
+author: "Evenstar259"
+repo: "https://github.com/Evenstar259/astrbot_plugin_daily_outfit"

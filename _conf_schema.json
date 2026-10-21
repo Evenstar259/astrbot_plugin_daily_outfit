@@ -1,0 +1,74 @@
+{
+  "enable_inject": {
+    "description": "自动将今日穿搭注入AI系统提示词",
+    "type": "bool",
+    "default": true,
+    "hint": "开启后，每次对话都会让角色记住今天穿了什么衣服以及当前的衣着状态。"
+  },
+  "persona_name": {
+    "description": "角色名称",
+    "type": "string",
+    "default": "伴侣",
+    "hint": "注入提示词与衣柜面板展示中使用的角色名字。"
+  },
+  "owner_id": {
+    "description": "专属用户 ID（私聊白名单，选填）",
+    "type": "string",
+    "default": "",
+    "hint": "填写 QQ 号/用户 ID 后仅在与该号私聊时注入衣柜穿搭；留空则对所有私聊用户生效。"
+  },
+  "allow_group_inject": {
+    "description": "允许在群聊中注入穿搭",
+    "type": "bool",
+    "default": false,
+    "hint": "默认关闭（仅私聊生效）。若需要在群聊中也生效可开启。"
+  },
+  "inject_full_detail": {
+    "description": "默认注入完整9部位文字描写",
+    "type": "bool",
+    "default": false,
+    "hint": "关闭时为静默精简模式（仅注入衣着状态与生图基底Tag，防止普通闲聊时AI背诵衣服）；开启后注入完整9部位中文详述。"
+  },
+  "enable_auto_discover_outfit": {
+    "description": "每日换装自动从词库淘新衣（试穿待审批）",
+    "type": "bool",
+    "default": false,
+    "hint": "开启后，每日换装时会自动从内置 4,559 条服饰词库中挑选生成新单品供试穿并放入【待审批池】。"
+  },
+  "require_approval_for_new_clothes": {
+    "description": "新衣服入柜需审批确认",
+    "type": "bool",
+    "default": true,
+    "hint": "开启后，AI 按描述添置的新衣会先进入【待审批试穿列表】，通过审批后才正式写入永久衣柜。"
+  },
+  "city": {
+    "description": "所在城市（用于获取天气）",
+    "type": "string",
+    "default": "",
+    "hint": "留空则自动通过当前网络 IP 识别所在城市获取实时天气与温度，也可手动填写城市名（如：上海、北京、武汉）。"
+  },
+  "refresh_hour": {
+    "description": "每日换日刷新时间（小时，0-12）",
+    "type": "int",
+    "default": 5,
+    "hint": "默认凌晨 5 点。在凌晨 0:00~5:00 之间熬夜聊天不会触发换装。"
+  },
+  "sleep_gap_hours": {
+    "description": "跨日睡眠静默间隔（小时）",
+    "type": "float",
+    "default": 3.0,
+    "hint": "即使过了凌晨换日线，也需要距离上一条消息超过该小时数才会自动换上新一天的衣服，防止熬夜聊天中途突然变装。"
+  },
+  "character_base_tags": {
+    "description": "角色固定外貌 NAI 标准词条底模（Base Tags）",
+    "type": "string",
+    "default": "",
+    "hint": "使用 Danbooru / NovelAI 标准原子词条描述角色发色、瞳色与身材基底。生成穿搭 NAI 提示词时会自动前置拼接；留空则仅输出服装 Tag。"
+  },
+  "custom_body_traits": {
+    "description": "角色附加设定 / 特殊体质说明（选填）",
+    "type": "string",
+    "default": "",
+    "hint": "选填。在开启完整详细注入模式时附加到穿搭上下文中的角色体质或特殊设定描述，留空则不注入。"
+  }
+}

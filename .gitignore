@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.bak*
+data/outfit_state.json
+data/custom_items.json
+data/custom_wardrobe.json
+data/pending_items.json
+data/thumbs/
+!data/quicktag_clothing_codex.json

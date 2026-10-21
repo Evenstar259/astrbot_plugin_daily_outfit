@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>每日穿搭衣柜 // 9-SLOT MODULAR WARDROBE</title>
+  <link rel="stylesheet" href="./style.css?v=20261021_nai_match" />
+</head>
+<body>
+  <div class="bg-stars"></div>
+  <div class="wrap">
+    <header class="header">
+      <div class="brand">
+        <div class="avatar-badge">✦</div>
+        <div>
+          <div class="sub-tag">DAILY OUTFIT SYSTEM // 9-SLOT MODULAR WARDROBE</div>
+          <h1 id="wardrobeMainTitle">每日穿搭衣柜</h1>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button id="reloadStateBtn" class="btn ghost small" type="button" title="刷新面板与天气">↻ 刷新</button>
+        <button id="refreshWeatherBtn" class="btn ghost small hidden" type="button">刷新天气</button>
+        <button id="randomEquipBtn" class="btn" type="button">🎲 随机混搭</button>
+        <button id="stripAllBtn" class="btn danger" type="button">一键脱光</button>
+        <button id="newItemBtn" class="btn primary" type="button">＋ 添置单品</button>
+      </div>
+    </header>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <div class="app-shell">
+      <!-- 最左侧垂直导航栏：从上往下依次是 穿搭主页 / 新衣审批池 / 生图相册 -->
+      <aside class="left-nav-rail">
+        <button id="navHomeBtn" class="rail-btn active" type="button">
+          <span class="rail-icon">🏠</span>
+          <span class="rail-label">穿搭主页</span>
+        </button>
+        <button id="navPendingBtn" class="rail-btn" type="button">
+          <span class="rail-icon">🛍️</span>
+          <span class="rail-label">审批池</span>
+          <span id="pendingBadge" class="pending-badge hidden">0</span>
+        </button>
+        <button id="navGalleryBtn" class="rail-btn" type="button">
+          <span class="rail-icon">📸</span>
+          <span class="rail-label">生图相册</span>
+        </button>
+      </aside>
+
+      <!-- 右侧主舞台：点击左侧导航切换 3 个独立视图 -->
+      <div class="view-stage">
+        <!-- 视图 1：🏠 穿搭主页（左右双栏：左今日穿搭 + 右9部位单品/整套收藏） -->
+        <div id="pageHomeView" class="main-grid">
+          <!-- 左侧：今日穿搭（左上角立绘展示图 + 右侧天气与穿着信息 + 9部位卡片） -->
+      <section class="panel current-panel">
+        <div class="hero-showcase-row compact-avatar-row">
+          <div id="pickShowcaseBtn" class="showcase-avatar-circle" title="点击更换固定印象小头像">
+            <img id="showcaseImg" src="" alt="角色头像" class="hidden" />
+            <div id="showcaseEmptyHint" class="showcase-avatar-fallback">✦</div>
+          </div>
+
+          <div class="showcase-right-info">
+            <div class="showcase-top-bar">
+              <div class="showcase-badges">
+                <span class="badge-live">● 今日穿着中</span>
+                <div id="weatherBadge" class="weather-pill" title="点击刷新实时天气" style="cursor:pointer;">
+                  <span>🌤️</span>
+                  <span id="weatherText">正在读取天气…</span>
+                </div>
+              </div>
+              <div class="head-btns">
+                <button id="saveCurrAsPresetBtn" class="btn ghost small" type="button">存为套装</button>
+                <button id="toggleEditCurrBtn" class="btn ghost small" type="button">微调文本</button>
+              </div>
+            </div>
+
+            <div class="showcase-title-block">
+              <h2 id="currName">正在加载今日穿搭…</h2>
+              <p id="currDateInfo" class="muted">--</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 顶部通宽独立发型词条 -->
+        <div class="hair-banner" data-jump-slot="hair" title="点击切换发型">
+          <span class="hair-tag">发型</span>
+          <span id="currHair" class="hair-val">--</span>
+          <span class="hair-change-hint">更换 ＞</span>
+        </div>
+
+        <!-- 6格精细衣物网格：外搭、上衣、下装、胸罩、内裤、丝袜/鞋饰 -->
+        <div class="outfit-parts">
+          <div class="part-card" data-jump-slot="outer">
+            <div class="part-head">
+              <div class="part-label">外搭 / 外套</div>
+              <div class="part-mini-btns" data-slot-ctrl="outer">
+                <button type="button" class="mini-btn" data-mode="normal">穿好</button>
+                <button type="button" class="mini-btn warn" data-mode="disheveled">半脱</button>
+                <button type="button" class="mini-btn danger" data-mode="stripped">脱下</button>
+              </div>
+            </div>
+            <div id="currOuter" class="part-val">--</div>
+          </div>
+          <div class="part-card" data-jump-slot="accessory">
+            <div class="part-head">
+              <div class="part-label">首饰 / 挂饰</div>
+              <div class="part-mini-btns" data-slot-ctrl="accessory">
+                <button type="button" class="mini-btn" data-mode="normal">戴好</button>
+                <button type="button" class="mini-btn danger" data-mode="stripped">摘下</button>
+              </div>
+            </div>
+            <div id="currAccessory" class="part-val">--</div>
+          </div>
+          <div class="part-card" data-jump-slot="top">
+            <div class="part-head">
+              <div class="part-label">上衣 / 连衣裙</div>
+              <div class="part-mini-btns" data-slot-ctrl="top">
+                <button type="button" class="mini-btn" data-mode="normal">穿好</button>
+                <button type="button" class="mini-btn warn" data-mode="disheveled">撩起</button>
+                <button type="button" class="mini-btn danger" data-mode="stripped">脱光</button>
+              </div>
+            </div>
+            <div id="currTop" class="part-val">--</div>
+          </div>
+          <div class="part-card" data-jump-slot="bottom">
+            <div class="part-head">
+              <div class="part-label">下装 / 裙裤</div>
+              <div class="part-mini-btns" data-slot-ctrl="bottom">
+                <button type="button" class="mini-btn" data-mode="normal">穿好</button>
+                <button type="button" class="mini-btn warn" data-mode="disheveled">掀裙</button>
+                <button type="button" class="mini-btn danger" data-mode="stripped">脱光</button>
+              </div>
+            </div>
+            <div id="currBottom" class="part-val">--</div>
+          </div>
+          <div class="part-card highlight-inner" data-jump-slot="bra">
+            <div class="part-head">
+              <div class="part-label">贴身胸罩</div>
+              <div class="part-mini-btns" data-slot-ctrl="bra">
+                <button type="button" class="mini-btn" data-mode="normal">扣好</button>
+                <button type="button" class="mini-btn warn" data-mode="disheveled">上推解扣</button>
+                <button type="button" class="mini-btn danger" data-mode="stripped">脱光</button>
+              </div>
+            </div>
+            <div id="currBra" class="part-val">--</div>
+          </div>
+          <div class="part-card highlight-inner" data-jump-slot="panties">
+            <div class="part-head">
+              <div class="part-label">贴身内裤</div>
+              <div class="part-mini-btns" data-slot-ctrl="panties">
+                <button type="button" class="mini-btn" data-mode="normal">穿好</button>
+                <button type="button" class="mini-btn warn" data-mode="disheveled">拨开挂腿</button>
+                <button type="button" class="mini-btn danger" data-mode="stripped">脱光</button>
+              </div>
+            </div>
+            <div id="currPanties" class="part-val">--</div>
+          </div>
+          <div class="part-card highlight-leg" data-jump-slot="legwear">
+            <div class="part-head">
+              <div class="part-label">腿部 / 丝袜</div>
+              <div class="part-mini-btns" data-slot-ctrl="legwear">
+                <button type="button" class="mini-btn" data-mode="normal">完好</button>
+                <button type="button" class="mini-btn warn" data-mode="disheveled">撕破破洞</button>
+                <button type="button" class="mini-btn danger" data-mode="stripped">脱光</button>
+              </div>
+            </div>
+            <div id="currLegwear" class="part-val">--</div>
+          </div>
+          <div class="part-card highlight-leg" data-jump-slot="shoes">
+            <div class="part-head">
+              <div class="part-label">鞋履 / 足部</div>
+              <div class="part-mini-btns" data-slot-ctrl="shoes">
+                <button type="button" class="mini-btn" data-mode="normal">穿好</button>
+                <button type="button" class="mini-btn warn" data-mode="disheveled">挂脚尖</button>
+                <button type="button" class="mini-btn danger" data-mode="stripped">赤足</button>
+              </div>
+            </div>
+            <div id="currShoes" class="part-val">--</div>
+          </div>
+        </div>
+
+        <!-- 实时状态互动区 -->
+        <div class="status-box">
+          <div class="status-head">
+            <span class="part-label">实时衣着状态（同步注入对话上下文）</span>
+          </div>
+          <div class="quick-chips">
+            <button type="button" class="chip" data-status="穿戴整洁完好（初始状态）">整洁完好</button>
+            <button type="button" class="chip" data-status="开衫滑落到手肘，领口微斜露出一大片白腻胸口">开衫半滑</button>
+            <button type="button" class="chip" data-status="胸罩扣子被解开，软弹的D罩杯在衣服下毫无束缚地轻颤">解开胸罩</button>
+            <button type="button" class="chip" data-status="黑丝与小内裤被褪到大腿中段，脸颊绯红呼吸微促">丝袜内裤半褪</button>
+          </div>
+          <div class="status-input-row">
+            <input id="statusInput" class="input" type="text" placeholder="输入当前衣着实时状态…" />
+            <button id="saveStatusBtn" class="btn primary" type="button">更新状态</button>
+          </div>
+        </div>
+
+        <!-- 展开的局部衣物微调表单（默认隐藏） -->
+        <div id="inlineEditBox" class="inline-edit hidden">
+          <h3>实时修改今日身上各部位描述</h3>
+          <div class="form-grid">
+            <label class="full">发型<input id="editCurrHair" class="input" type="text" /></label>
+            <label>外搭/外套<input id="editCurrOuter" class="input" type="text" /></label>
+            <label>上衣/连衣裙<input id="editCurrTop" class="input" type="text" /></label>
+            <label>下装/裙裤<input id="editCurrBottom" class="input" type="text" /></label>
+            <label>丝袜/鞋饰<input id="editCurrLeg" class="input" type="text" /></label>
+            <label>贴身胸罩<input id="editCurrBra" class="input" type="text" /></label>
+            <label>贴身内裤<input id="editCurrPanties" class="input" type="text" /></label>
+            <label class="full">服装 NAI Tags<input id="editCurrTags" class="input" type="text" /></label>
+          </div>
+          <div class="form-actions">
+            <button id="saveCurrDetailsBtn" class="btn primary" type="button">保存今日穿着修改</button>
+          </div>
+        </div>
+
+        <!-- 折叠收纳：配套 NAI 提示词与状态记录（默认收起保持主页清爽） -->
+        <details class="collapsible-box">
+          <summary class="collapsible-summary">
+            <span>📋 展开查看完整 NAI 4.5 拼装 Tags 与今日换装记录</span>
+            <button id="copyNaiBtn" class="btn ghost small" type="button">复制 Tags</button>
+          </summary>
+          <div class="collapsible-body">
+            <pre id="currNaiTags" class="nai-pre">--</pre>
+            <div class="part-label" style="margin-top:10px;">今日衣着状态记录</div>
+            <ul id="historyList" class="history-list"></ul>
+          </div>
+        </details>
+      </section>
+
+          <!-- 右侧：仅保留干净的两个小切换（9部位单品库 / 整套收藏夹） -->
+          <section class="panel wardrobe-panel">
+            <div class="mode-tabs">
+              <button id="tabModularBtn" class="mode-tab active" type="button">👗 9部位单品库</button>
+              <button id="tabPresetsBtn" class="mode-tab" type="button">✨ 整套穿搭收藏夹</button>
+            </div>
+
+            <div id="modularView">
+              <p class="muted" style="margin-bottom: 10px;">
+                点击左侧任意衣物格子或下方分类标签，即可单独更换角色身上的某一件单品。
+              </p>
+              <div class="slot-tabs">
+                <button type="button" class="slot-tab" data-slot="hair">发型</button>
+                <button type="button" class="slot-tab active" data-slot="outer">外搭</button>
+                <button type="button" class="slot-tab" data-slot="top">上衣/连衣裙</button>
+                <button type="button" class="slot-tab" data-slot="bottom">下装/裙裤</button>
+                <button type="button" class="slot-tab" data-slot="bra">贴身胸罩</button>
+                <button type="button" class="slot-tab" data-slot="panties">贴身内裤</button>
+                <button type="button" class="slot-tab" data-slot="legwear">腿部/丝袜</button>
+                <button type="button" class="slot-tab" data-slot="shoes">鞋履/足部</button>
+                <button type="button" class="slot-tab" data-slot="accessory">首饰/挂饰</button>
+              </div>
+              <div id="slotItemList" class="preset-grid"></div>
+            </div>
+
+            <div id="presetsView" class="hidden">
+              <div class="panel-head" style="margin-top: 4px;">
+                <p class="muted">一键换上预设好的完整套装</p>
+                <div style="display:flex; gap:8px;">
+                  <input id="searchPreset" class="input search-input" type="search" placeholder="搜索套装…" />
+                  <button id="newPresetBtn" class="btn ghost small" type="button">＋ 添置整套</button>
+                </div>
+              </div>
+              <div id="presetGrid" class="preset-grid"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 视图 2：🛍️ 新衣审批池（独立全宽大面板） -->
+        <section id="pagePendingView" class="panel full-stage-panel hidden">
+          <div class="panel-head" style="flex-wrap:wrap;">
+            <div>
+              <h2>🛍️ 新衣试穿与待审批池</h2>
+              <p class="muted">从 QuickTagCloud (4,559条服饰词库) 自动淘新衣试穿，或审核待正式入柜的新衣服</p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <input id="discoverHintInput" class="input search-input" style="width:200px;" type="text" placeholder="可选风格词（如：旗袍 / 地雷系 / 泳装）" />
+              <button id="discoverNewBtn" class="btn primary" type="button">🎲 去词库淘一件新衣试穿</button>
+            </div>
+          </div>
+          <div id="pendingGrid" class="preset-grid full-width-cards"></div>
+        </section>
+
+        <!-- 视图 3：📸 生图相册（独立全宽大瀑布流画廊） -->
+        <section id="pageGalleryView" class="panel full-stage-panel hidden">
+          <div class="panel-head" style="flex-wrap:wrap;">
+            <div>
+              <h2>📸 历史生图相册画廊</h2>
+              <p id="galleryStats" class="muted">正在读取 NAI 历史相册…</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+              <input id="searchGalleryInput" class="input search-input" style="width:220px;" type="search" placeholder="搜 Tag / 模型 / 文件名…" />
+              <button id="sortGalleryBtn" class="btn ghost small" type="button">新 → 旧</button>
+              <button id="reloadGalleryBtn" class="btn ghost small" type="button">刷新相册</button>
+            </div>
+          </div>
+          <div id="galleryGrid" class="gallery-grid full-gallery-grid"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- 弹窗 1：添置/编辑单件衣物 -->
+  <div id="itemModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="itemModalTitle">添置单件衣物</h3>
+        <button id="closeItemModalBtn" class="btn ghost small" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <input id="itemFormId" type="hidden" />
+        <div class="form-grid">
+          <label>所属部位 *
+            <select id="itemFormSlot" class="input">
+              <option value="hair">发型</option>
+              <option value="outer">外搭 / 外套</option>
+              <option value="top">上衣 / 连衣裙</option>
+              <option value="bottom">下装 / 裙裤</option>
+              <option value="bra">贴身胸罩</option>
+              <option value="panties">贴身内裤</option>
+              <option value="legwear">腿部 / 丝袜</option>
+              <option value="shoes">鞋履 / 足部</option>
+              <option value="accessory">首饰 / 挂饰</option>
+            </select>
+          </label>
+          <label>单品简称 *
+            <input id="itemFormName" class="input" type="text" placeholder="例如：深紫蓝腰侧蝴蝶结蕾丝内裤" />
+          </label>
+          <label>适用最低温 (°C)
+            <input id="itemFormTempMin" class="input" type="number" value="10" />
+          </label>
+          <label>适用最高温 (°C)
+            <input id="itemFormTempMax" class="input" type="number" value="35" />
+          </label>
+          <label class="full">场景标签（逗号分隔：weekend_home, weekday, mild, hot, cold, rainy, night）
+            <input id="itemFormCats" class="input" type="text" value="weekend_home, weekday, mild" />
+          </label>
+          <label class="full">详细穿戴描写 *（用于注入角色上下文记忆）
+            <input id="itemFormDesc" class="input" type="text" placeholder="例如：深紫蓝色半透明薄纱蕾丝小内裤（腰侧系着丝绸活结蝴蝶结…）" />
+          </label>
+          <label class="full">单品专属 NAI 英文 Tags（留空保存会自动从 QuickTagCloud 词库匹配详细 Tag）
+            <div style="display:flex; gap:8px; margin-top:4px;">
+              <input id="itemFormNaiTags" class="input" style="flex:1;" type="text" placeholder="例如：asymmetrical legwear, single fishnet thighhigh, skindentation" />
+              <button id="autoSearchItemTagsBtn" class="btn secondary small" type="button" title="从 novelai.quicktagcloud.com 词库检索并生成详细 Tag">🔍 找详细Tag</button>
+            </div>
+            <div id="itemQuickTagResults" class="muted" style="margin-top:6px; font-size:12px; max-height:130px; overflow-y:auto;"></div>
+          </label>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelItemModalBtn" class="btn ghost" type="button">取消</button>
+        <button id="saveItemFormBtn" class="btn primary" type="button">保存到单品库</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 弹窗 2：添置/编辑整套预设 -->
+  <div id="presetModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle">保存整套穿搭</h3>
+        <button id="closeModalBtn" class="btn ghost small" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <input id="formId" type="hidden" />
+        <div class="form-grid">
+          <label class="full">穿搭名称 *
+            <input id="formName" class="input" type="text" />
+          </label>
+          <label>适用最低温 (°C)
+            <input id="formTempMin" class="input" type="number" value="12" />
+          </label>
+          <label>适用最高温 (°C)
+            <input id="formTempMax" class="input" type="number" value="30" />
+          </label>
+          <label class="full">场景标签
+            <input id="formCategories" class="input" type="text" value="weekend_home, mild" />
+          </label>
+          <label class="full">外搭 / 外套<input id="formOuter" class="input" type="text" /></label>
+          <label class="full">上衣 / 裙装<input id="formTopBottom" class="input" type="text" /></label>
+          <label class="full">贴身内衣<input id="formUnderwear" class="input" type="text" /></label>
+          <label class="full">腿部 / 丝袜<input id="formLegwear" class="input" type="text" /></label>
+          <label class="full">发型 / 鞋饰<input id="formShoes" class="input" type="text" /></label>
+          <label class="full">穿搭氛围<input id="formVibe" class="input" type="text" /></label>
+          <label class="full">服装专属 NAI 英文 Tags<textarea id="formNaiTags" class="input textarea" rows="3"></textarea></label>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelModalBtn" class="btn ghost" type="button">取消</button>
+        <button id="savePresetBtn" class="btn primary" type="button">保存到套装库</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 弹窗 3：相册大图与参数查看器 -->
+  <div id="photoViewerModal" class="modal hidden">
+    <div class="modal-card viewer-card">
+      <div class="modal-head">
+        <h3 id="viewerTitle">照片详情</h3>
+        <div style="display:flex; gap:8px;">
+          <button id="viewerPrevBtn" class="btn ghost small" type="button">‹ 上一张</button>
+          <button id="viewerNextBtn" class="btn ghost small" type="button">下一张 ›</button>
+          <button id="closeViewerBtn" class="btn ghost small" type="button">✕</button>
+        </div>
+      </div>
+      <div class="viewer-body">
+        <div class="viewer-img-wrap">
+          <img id="viewerImg" src="" alt="preview" />
+        </div>
+        <div class="viewer-meta-wrap">
+          <div class="part-label">生成时间与信息</div>
+          <div id="viewerMetaText" class="part-val" style="margin-bottom:12px;">--</div>
+          <div class="nai-head">
+            <span class="part-label">生成时使用的 Prompt Tags</span>
+            <button id="viewerCopyTagBtn" class="btn ghost small" type="button">复制 Prompt</button>
+          </div>
+          <pre id="viewerPromptPre" class="nai-pre" style="max-height:240px; overflow-y:auto;">--</pre>
+          <div class="preset-actions" style="margin-top:16px; flex-wrap:wrap;">
+            <button id="viewerSetShowcaseBtn" class="btn primary small" type="button">📌 设为左上角展示图</button>
+            <a id="viewerDownloadBtn" class="btn ghost small" download="">下载原图</a>
+            <button id="viewerDeleteBtn" class="btn danger small" type="button">删除这张照片</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 弹窗 4：从相册挑选左上角展示图片 -->
+  <div id="showcasePickerModal" class="modal hidden">
+    <div class="modal-card" style="max-width:780px;">
+      <div class="modal-head">
+        <h3>🖼️ 选择左上角展示照片（点击图片即可换上）</h3>
+        <button id="closeShowcasePickerBtn" class="btn ghost small" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="showcasePickerGrid" class="gallery-grid" style="max-height:480px; overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js?v=20261018_fixed"></script>
+</body>
+</html>
