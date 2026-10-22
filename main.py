@@ -28,6 +28,7 @@ try:
         deduplicate_tag_string,
         is_onepiece_top,
         select_outfit_for_context,
+        sync_outfit_combined_fields,
     )
 except ImportError:
     from wardrobe import (
@@ -41,6 +42,7 @@ except ImportError:
         deduplicate_tag_string,
         is_onepiece_top,
         select_outfit_for_context,
+        sync_outfit_combined_fields,
     )
 
 
@@ -564,22 +566,38 @@ class DailyOutfitPlugin(Star):
                 )
                 # 若开启了「每日换装自动淘新衣」开关，则自动从 QuickTagCloud 词库淘一件新衣试穿并放入待审批列表
                 if bool(self._get_cfg("enable_auto_discover_outfit", False)):
+                    pending_list = self._load_pending_items()
+                    excl_titles = {str(it.get("name") or "") for it in pending_list}
+                    for s_items in all_items.values():
+                        for it in s_items:
+                            excl_titles.add(str(it.get("name") or ""))
                     cand = discover_new_outfit_candidate(
                         temp_c=float(weather.get("temp_c") or 20.0),
                         style_hint=style_hint,
+                        exclude_titles=excl_titles,
                     )
                     if cand:
-                        pending_list = self._load_pending_items()
+                        cand_slot = str(cand.get("slot") or "top").strip()
+                        if cand_slot not in SLOTS:
+                            cand_slot = "top"
+                        if cand_slot == "top" and is_onepiece_top(cand):
+                            cand["is_onepiece"] = True
+                            cand["is_dress"] = True
+                            dress_bot = next((b for b in (all_items.get("bottom") or []) if b.get("id") == "bot_dress_none"), None)
+                            if dress_bot:
+                                chosen["bottom_id"] = dress_bot["id"]
+                                chosen["bottom"] = dress_bot["desc"]
                         pending_list.insert(0, cand)
                         self._save_pending_items(pending_list[:30])
                         chosen["name"] = f"今日淘新试穿·{cand['name']}（待主人审批入柜）"
-                        chosen["top"] = cand["desc"]
-                        chosen["top_bottom"] = f"{cand['desc']} + {chosen.get('bottom', '')}"
+                        chosen[f"{cand_slot}_id"] = cand["id"]
+                        chosen[cand_slot] = cand["desc"]
                         chosen["outfit_nai_tags"] = deduplicate_tag_string(
                             f"{cand['nai_tags']}, {chosen.get('outfit_nai_tags', '')}"
                         )
                         chosen["pending_candidate_id"] = cand["id"]
 
+            sync_outfit_combined_fields(chosen)
             logical_date = self._get_logical_date_str(now)
             prev_showcase = str((self.state or {}).get("showcase_image") or "")
             self.state = {
@@ -621,6 +639,7 @@ class DailyOutfitPlugin(Star):
             outfit.setdefault("legwear", "15D超薄半透明黑色连裤丝袜（从腰臀一路包裹住修长双腿）")
             outfit.setdefault("shoes", "脚穿软乎乎的居家软底毛绒拖鞋")
             outfit.setdefault("accessory", "修长白皙的脖颈间贴肤系着一条黑色Choker短颈带（项圈）")
+            sync_outfit_combined_fields(outfit)
             self.state["last_message_ts"] = now_ts
             self._save_state()
 
@@ -938,12 +957,14 @@ class DailyOutfitPlugin(Star):
         try:
             state = await self.ensure_today_outfit()
             outfit = state.setdefault("outfit", {})
+            if "showcase_image" in body and body["showcase_image"] is not None:
+                state["showcase_image"] = str(body["showcase_image"]).strip()
             status_note = str(body.get("status_note", "") or "").strip()
             if body.get("location"):
                 state["location"] = str(body["location"]).strip()
             if body.get("activity"):
                 state["activity"] = str(body["activity"]).strip()
-            if status_note:
+            if status_note and status_note != state.get("status_note"):
                 state["status_note"] = status_note
                 history = state.setdefault("history_notes", [])
                 history.append(
@@ -952,11 +973,22 @@ class DailyOutfitPlugin(Star):
                         "status": status_note,
                     }
                 )
+            prev_tags = str(outfit.get("outfit_nai_tags", "") or "").strip()
+            if "legwear_acc" in body and body["legwear_acc"] is not None and "legwear" not in body:
+                val_leg = str(body["legwear_acc"]).strip()
+                if val_leg:
+                    outfit["legwear"] = val_leg
+                    outfit["legwear_acc"] = val_leg
             for field in ("name", "hair", "outer", "top", "bottom", "bra", "panties", "legwear", "shoes", "accessory", "top_bottom", "underwear", "shoes_acc", "vibe", "outfit_nai_tags"):
                 if field in body and body[field] is not None:
                     val = str(body[field]).strip()
                     if val:
                         outfit[field] = val
+            if "outfit_nai_tags" in body and body["outfit_nai_tags"] is not None:
+                new_tags = str(body["outfit_nai_tags"]).strip()
+                if new_tags and new_tags != prev_tags:
+                    outfit["custom_tags_override"] = True
+            sync_outfit_combined_fields(outfit)
             self._save_state()
             return json_response(
                 {
@@ -993,7 +1025,9 @@ class DailyOutfitPlugin(Star):
         elif not isinstance(cats, list) or not cats:
             cats = ["weekend_home", "weekday", "mild"]
 
-        new_preset = {
+        custom = self._load_custom_presets()
+        existing_preset = next((p for p in custom if isinstance(p, dict) and p.get("id") == preset_id), {})
+        new_preset: dict[str, Any] = {
             "id": preset_id,
             "name": name,
             "categories": cats,
@@ -1015,7 +1049,15 @@ class DailyOutfitPlugin(Star):
                 )
             ),
         }
-        custom = self._load_custom_presets()
+        for slot in SLOTS:
+            sid_key = f"{slot}_id"
+            sid_val = str(body.get(sid_key) or existing_preset.get(sid_key) or "").strip()
+            if sid_val:
+                new_preset[sid_key] = sid_val
+            s_val = str(body.get(slot) or existing_preset.get(slot) or "").strip()
+            if s_val and slot not in ("outer", "legwear"):
+                new_preset[slot] = s_val
+        sync_outfit_combined_fields(new_preset)
         replaced = False
         for i, item in enumerate(custom):
             if isinstance(item, dict) and item.get("id") == preset_id:
@@ -1053,24 +1095,43 @@ class DailyOutfitPlugin(Star):
         try_on = bool((body or {}).get("try_on", True))
         state = await self.ensure_today_outfit()
         weather = state.get("weather") or {}
+        pending_list = self._load_pending_items()
+        all_items = self.get_all_items_by_slot()
+        excl_titles = {str(it.get("name") or "") for it in pending_list}
+        for s_items in all_items.values():
+            for it in s_items:
+                excl_titles.add(str(it.get("name") or ""))
         cand = discover_new_outfit_candidate(
             temp_c=float(weather.get("temp_c") or 20.0),
             style_hint=style_hint,
+            exclude_titles=excl_titles,
         )
         if not cand:
             return error_response("词库为空，无法自动淘新衣", status_code=404)
-        pending_list = self._load_pending_items()
+        cand_slot = str(cand.get("slot") or "top").strip()
+        if cand_slot not in SLOTS:
+            cand_slot = "top"
+        if cand_slot == "top" and is_onepiece_top(cand):
+            cand["is_onepiece"] = True
+            cand["is_dress"] = True
         pending_list.insert(0, cand)
         self._save_pending_items(pending_list[:30])
         if try_on:
             outfit = state.setdefault("outfit", {})
             outfit["name"] = f"试穿新衣·{cand['name']}（待审批）"
-            outfit["top"] = cand["desc"]
-            outfit["top_bottom"] = cand["desc"]
+            outfit[f"{cand_slot}_id"] = cand["id"]
+            outfit[cand_slot] = cand["desc"]
+            if cand_slot == "top" and cand.get("is_onepiece"):
+                dress_bot = next((b for b in (all_items.get("bottom") or []) if b.get("id") == "bot_dress_none"), None)
+                if dress_bot:
+                    outfit["bottom_id"] = dress_bot["id"]
+                    outfit["bottom"] = dress_bot["desc"]
+            outfit.pop("custom_tags_override", None)
             outfit["outfit_nai_tags"] = deduplicate_tag_string(
                 f"{cand['nai_tags']}, {outfit.get('outfit_nai_tags', '')}"
             )
             outfit["pending_candidate_id"] = cand["id"]
+            sync_outfit_combined_fields(outfit)
             state["status_note"] = f"正在试穿新淘来的【{cand['name']}】（等待主人审批是否入柜）"
             self._save_state()
         return json_response(
@@ -1120,9 +1181,14 @@ class DailyOutfitPlugin(Star):
         custom.append(formal_item)
         self._save_custom_items(custom)
         state = self._load_state()
-        if isinstance(state.get("outfit"), dict) and state["outfit"].get(f"{slot_clean}_id") == chosen.get("id"):
-            state["outfit"][f"{slot_clean}_id"] = formal_item["id"]
-            self._save_state()
+        if isinstance(state.get("outfit"), dict):
+            curr_o = state["outfit"]
+            if curr_o.get(f"{slot_clean}_id") == chosen.get("id") or curr_o.get("pending_candidate_id") == chosen.get("id"):
+                curr_o[f"{slot_clean}_id"] = formal_item["id"]
+                if curr_o.get("pending_candidate_id") == chosen.get("id"):
+                    curr_o.pop("pending_candidate_id", None)
+                self.state = state
+                self._save_state()
         return json_response(
             {
                 "status": "ok",
@@ -1240,7 +1306,13 @@ class DailyOutfitPlugin(Star):
         if not name:
             return error_response("缺少文件名", status_code=400)
         try:
+            stem = Path(name).stem
             removed = await asyncio.to_thread(delete_entry, self.nai_history_dir, name)
+            for th in self.thumb_dir.glob(f"{stem}_*.jpg"):
+                try:
+                    th.unlink()
+                except OSError:
+                    pass
             return json_response({"status": "ok", "removed": removed})
         except Exception as e:
             return error_response(f"删除失败: {e}", status_code=500)
@@ -1306,13 +1378,17 @@ class DailyOutfitPlugin(Star):
             outfit["outer"] = outer.strip()
         if top_bottom.strip():
             outfit["top_bottom"] = top_bottom.strip()
+            outfit["top"] = top_bottom.strip()
         if underwear.strip():
             outfit["underwear"] = underwear.strip()
+            outfit["bra"] = underwear.strip()
         if legwear.strip():
             outfit["legwear"] = legwear.strip()
         if outfit_nai_tags.strip():
             outfit["outfit_nai_tags"] = outfit_nai_tags.strip()
+            outfit["custom_tags_override"] = True
 
+        sync_outfit_combined_fields(outfit)
         self._save_state()
         logger.info(f"{LOG_TAG} 已通过工具更新穿搭状态: {status_note}")
         return f"已更新当前衣着状态为：{status_note}"
@@ -1499,9 +1575,14 @@ class DailyOutfitPlugin(Star):
             custom.append(formal_item)
             self._save_custom_items(custom)
             state = self._load_state()
-            if isinstance(state.get("outfit"), dict) and state["outfit"].get(f"{slot_clean}_id") == chosen.get("id"):
-                state["outfit"][f"{slot_clean}_id"] = formal_item["id"]
-                self._save_state()
+            if isinstance(state.get("outfit"), dict):
+                curr_o = state["outfit"]
+                if curr_o.get(f"{slot_clean}_id") == chosen.get("id") or curr_o.get("pending_candidate_id") == chosen.get("id"):
+                    curr_o[f"{slot_clean}_id"] = formal_item["id"]
+                    if curr_o.get("pending_candidate_id") == chosen.get("id"):
+                        curr_o.pop("pending_candidate_id", None)
+                    self.state = state
+                    self._save_state()
             yield event.plain_result(
                 f"✅ 审批通过！已将【{formal_item['name']}】（部位：{slot_clean}）正式收入永久衣柜！{nl}"
                 f"剩余待审批：{len(pending_list)} 件。"

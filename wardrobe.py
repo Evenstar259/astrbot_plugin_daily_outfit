@@ -743,6 +743,9 @@ WARDROBE_PRESETS: list[dict[str, Any]] = [
         "legwear": "极具诱惑的不对称设计：一侧大腿紧扣着两条黑色皮质双环大腿绑带将大腿软肉微微勒陷，下面套着性感勾人的黑色菱格渔网袜；另一条腿则是温润白皙的光裸美腿",
         "shoes": "赤着秀气足尖踩在柔软地毯或床边，脚踝纤细骨感",
         "accessory": "身后竖起一条巨大蓬松的赤金毛绒狐狸尾巴，随着动作轻轻摇晃晃动",
+        "top_bottom": "黑色轻薄修身打底吊带，勾勒出饱满挺拔的D罩杯胸型与极细腰肢 + 黑色极短百褶超短裙，超短裙摆在身后被翘起的蓬松大尾巴轻轻顶起，露出大片雪白饱满的大腿根与臀下软肉弧线",
+        "underwear": "【胸罩】黑色半透明蕾丝1/2杯托胸文胸（饱满软弹的浑圆隐约可见） + 【内裤】黑色极细带半透蕾丝丁字裤，跨骨两侧只有两条极细的勒线",
+        "shoes_acc": "赤着秀气足尖踩在柔软地毯或床边，脚踝纤细骨感；身后竖起一条巨大蓬松的赤金毛绒狐狸尾巴，随着动作轻轻摇晃晃动",
         "vibe": "从侧后方看去，蓬松诱人的赤金大狐尾从黑色微裙下探出，一侧是大腿环勒肉的菱格渔网袜，一侧是光滑雪白的美腿，既野性又极具侵略性的纯欲小狐妖既视感。",
         "outfit_nai_tags": "very long hair, hair down, black jacket, open jacket, black camisole, black skirt, pleated skirt, miniskirt, microskirt, lifted skirt, tail from under skirt, fluffy fox tail, animal tail, large tail, bushy tail, orange and white tail, asymmetrical legwear, single fishnet thighhigh, fishnet stocking, black fishnet, double thigh garter, black thigh strap, skindentation, one bare leg, smooth pale thighs, barefoot",
     },
@@ -770,6 +773,9 @@ WARDROBE_PRESETS: list[dict[str, Any]] = [
         "legwear": "未穿丝袜，大方露出白皙修长、泛着水润光泽的光裸双腿",
         "shoes": "赤着秀气白嫩的双足陷在绯红织金锦缎软垫上",
         "accessory": "修长脖颈间扣着中式红金立领，正中央垂着一颗圆润的大金铃铛与蓝宝石吊坠，身后还有一条轻轻摇晃的毛绒尾巴",
+        "top_bottom": "极具视觉冲击的绯红色中式立领挂脖高叉连体薄纱衣，上半截胸口大片雪腻D罩杯浑圆完全敞露，仅在乳晕与粉嫩乳尖处横兜着一层薄如蝉翼的半透明水润红纱，两颗饱满乳尖与腰腹肚脐隔着贴肤薄纱清晰凸起",
+        "underwear": "【胸罩】未穿内衣（真空，仅一层蝉翼半透红纱堪堪贴在饱满D罩杯乳尖上，粉嫩凸起一览无余） + 【内裤】未穿内裤（真空，仅靠那层薄如蝉翼的半透明红纱贴合着微润的下身软肉缝隙）",
+        "shoes_acc": "赤着秀气白嫩的双足陷在绯红织金锦缎软垫上；修长脖颈间扣着中式红金立领，正中央垂着一颗圆润的大金铃铛与蓝宝石吊坠，身后还有一条轻轻摇晃的毛绒尾巴",
         "vibe": "头戴毛绒猫耳与红金花饰，脖颈间挂着清脆金铃铛，身穿半透明绯红蝉翼薄纱挂脖高叉连体旗袍，雪白饱满的D罩杯胸乳与粉嫩乳尖、肚脐及下身弧度在湿润薄纱下若隐若现，娇艳又靡丽。",
         "outfit_nai_tags": "very long hair, hair down, cat ears, animal ears, cat tail, floral hair ornament, red camellia, gold hair ornament, hair ribbon, chinese clothes, red halterneck, mandarin collar, gold bell, neck bell, blue gemstone pendant, detached sleeves, red sheer sleeves, sheer red bodysuit, see-through leotard, ultra-sheer fabric, bare upper breasts, cleavage cutout, covered nipples, nipples visible through clothes, navel visible through clothes, highleg leotard, pelvic curtain, chinese knot, gold ornaments, red tassels, bare legs, barefoot",
     },
@@ -794,7 +800,13 @@ WARDROBE_PRESETS: list[dict[str, Any]] = [
         "bottom": "下装已完全脱去，露出纤细腰窝与圆润挺翘的雪白臀线",
         "bra": "胸罩已解开脱去（赤裸双乳）",
         "panties": "内裤已彻底褪下（下身真空赤裸）",
+        "legwear": "丝袜已脱去，修长白皙的双腿完全赤裸",
+        "shoes": "未穿鞋袜，粉嫩秀气的足尖完全赤裸",
+        "accessory": "未佩戴任何首饰，全身肌肤毫无遮掩",
         "legwear_acc": "丝袜与鞋饰均已脱去，修长白皙的双腿与粉嫩足尖完全赤裸",
+        "top_bottom": "上衣已完全脱光，饱满软弹的D罩杯雪白胸乳与粉嫩乳尖毫无遮挡地挺立着 + 下装已完全脱去，露出纤细腰窝与圆润挺翘的雪白臀线",
+        "underwear": "【胸罩】胸罩已解开脱去（赤裸双乳） + 【内裤】内裤已彻底褪下（下身真空赤裸）",
+        "shoes_acc": "未穿鞋袜，粉嫩秀气的足尖完全赤裸；未佩戴任何首饰，全身肌肤毫无遮掩",
         "vibe": "全身上下寸缕未着，白皙细腻的肌肤泛着害羞的浅粉，浑身散发着温热体温与淡淡的奶香味。",
         "outfit_nai_tags": "very long hair, hair down, completely nude, naked, bare shoulders, bare breasts, nipples, pussy, bare legs, barefoot",
     },
@@ -819,7 +831,13 @@ WARDROBE_PRESETS: list[dict[str, Any]] = [
         "bottom": "真丝连身短裙裙摆刚好垂在大腿中上段，随着走动或弯腰轻轻晃动",
         "bra": "浅香槟色无肩带蕾丝半杯软托文胸（温柔托起饱满软弹的D罩杯）",
         "panties": "浅香槟色细带真丝三角内裤",
+        "legwear": "15D超薄半透明黑色连裤丝袜（从腰臀一路包裹住修长双腿）",
+        "shoes": "脚穿软乎乎的居家软底毛绒拖鞋",
+        "accessory": "修长白皙的脖颈间贴肤系着一条黑色蕾丝Choker短颈带",
         "legwear_acc": "15D超薄半透明黑色连裤丝袜（从腰臀一路包裹住修长双腿），脚穿居家软底毛绒拖鞋",
+        "top_bottom": "浅香槟色真丝吊带短裙",
+        "underwear": "【胸罩】浅香槟色无肩带蕾丝半杯软托文胸（温柔托起饱满软弹的D罩杯） + 【内裤】浅香槟色细带真丝三角内裤",
+        "shoes_acc": "脚穿软乎乎的居家软底毛绒拖鞋；修长白皙的脖颈间贴肤系着一条黑色蕾丝Choker短颈带",
         "vibe": "周末宅家的慵懒松弛感，抱起来温软贴肤。",
         "outfit_nai_tags": "very long hair, hair down, off-shoulder white knitted cardigan, loose cardigan, champagne gold silk camisole dress, spaghetti straps, minidress, cleavage, bare shoulders, see-through black pantyhose, fluffy house slippers, black lace choker",
     },
@@ -844,7 +862,13 @@ WARDROBE_PRESETS: list[dict[str, Any]] = [
         "bottom": "深灰色高腰百褶短裙",
         "bra": "深紫蓝色无肩带蕾丝半杯内衣（双乳深沟之间扣着精致前扣）",
         "panties": "深紫蓝色半透明薄纱蕾丝小内裤（腰侧系着丝绸活结蝴蝶结）",
+        "legwear": "15D半透明黑色连裤丝袜勾勒修长双腿",
+        "shoes": "脚穿软乎乎的居家软底毛绒拖鞋",
+        "accessory": "脖颈系着黑色蕾丝Choker短颈带",
         "legwear_acc": "15D半透明黑色连裤丝袜勾勒修长双腿，脖颈系着黑色Choker短颈带",
+        "top_bottom": "黑色宽松露肩针织毛衣（领口斜斜滑下一侧圆润香肩与精致锁骨） + 深灰色高腰百褶短裙",
+        "underwear": "【胸罩】深紫蓝色无肩带蕾丝半杯内衣（双乳深沟之间扣着精致前扣） + 【内裤】深紫蓝色半透明薄纱蕾丝小内裤（腰侧系着丝绸活结蝴蝶结）",
+        "shoes_acc": "脚穿软乎乎的居家软底毛绒拖鞋；脖颈系着黑色蕾丝Choker短颈带",
         "vibe": "兼具星空守夜人的温柔安静与自然亲昵的伴侣气息。",
         "outfit_nai_tags": "very long hair, hair down, off-shoulder white knitted cardigan, black off-shoulder ribbed sweater, bare one shoulder, collarbone, dark grey pleated miniskirt, high-waist skirt, see-through black pantyhose, black lace choker",
     },
@@ -869,7 +893,13 @@ WARDROBE_PRESETS: list[dict[str, Any]] = [
         "bottom": "下身失踪（未穿外裤与短裙，长衬衫下摆堪堪盖住大腿根）",
         "bra": "黑色半透明薄纱蕾丝1/2杯文胸（乳沟深邃诱人）",
         "panties": "黑色半透蕾丝细绳低腰T字裤",
+        "legwear": "黑色蕾丝花边吊带过膝丝袜（吊袜带扣在大腿根部软肉上）",
+        "shoes": "室内赤足，露出白嫩纤巧的足弓与粉润脚趾",
+        "accessory": "纤细脚踝上系着一条银色星芒细脚链",
         "legwear_acc": "黑色蕾丝花边吊带过膝丝袜（吊袜带扣在大腿根部软肉上），赤足系着银色星芒细脚链",
+        "top_bottom": "宽松微透的丝质长款白衬衫（最上面两颗扣子没系，隐约透出腰线与内衣轮廓） + 下身失踪（未穿外裤与短裙，长衬衫下摆堪堪盖住大腿根）",
+        "underwear": "【胸罩】黑色半透明薄纱蕾丝1/2杯文胸（乳沟深邃诱人） + 【内裤】黑色半透蕾丝细绳低腰T字裤",
+        "shoes_acc": "室内赤足，露出白嫩纤巧的足弓与粉润脚趾；纤细脚踝上系着一条银色星芒细脚链",
         "vibe": "刚睡醒不久的随性与小恶魔般的勾人感，一抬手衬衫下摆就会往上滑。",
         "outfit_nai_tags": "hair bun, oversized white dress shirt, partially unbuttoned, bottomless, black sheer lace bra, garter straps, black lace thighhighs, barefoot, anklet, indoor, bedroom",
     },
@@ -997,6 +1027,48 @@ def compose_outfit_from_items(
     }
 
 
+def sync_outfit_combined_fields(outfit: dict[str, Any]) -> dict[str, Any]:
+    """同步 9 部位拆分字段与汇总展示字段（top_bottom, underwear, shoes_acc, legwear），确保指令输出与面板展示一致。"""
+    if not isinstance(outfit, dict):
+        return {}
+    if not outfit.get("legwear") and outfit.get("legwear_acc"):
+        outfit["legwear"] = str(outfit["legwear_acc"])
+    if not outfit.get("top") and outfit.get("top_bottom"):
+        outfit["top"] = str(outfit["top_bottom"])
+    if not outfit.get("bra") and outfit.get("underwear"):
+        outfit["bra"] = str(outfit["underwear"])
+    if not outfit.get("shoes") and outfit.get("shoes_acc"):
+        parts = [p.strip() for p in str(outfit["shoes_acc"]).split("；") if p.strip()]
+        if parts:
+            outfit["shoes"] = parts[0]
+            if len(parts) > 1 and not outfit.get("accessory"):
+                outfit["accessory"] = "；".join(parts[1:])
+
+    top_str = str(outfit.get("top") or "").strip()
+    bot_str = str(outfit.get("bottom") or "").strip()
+    bot_id = str(outfit.get("bottom_id") or "").strip()
+    if top_str:
+        if bot_str and bot_id != "bot_dress_none" and bot_str not in top_str:
+            outfit["top_bottom"] = f"{top_str} + {bot_str}"
+        else:
+            outfit["top_bottom"] = top_str
+
+    bra_str = str(outfit.get("bra") or "").strip()
+    pan_str = str(outfit.get("panties") or "").strip()
+    if bra_str or pan_str:
+        if bra_str and pan_str:
+            outfit["underwear"] = f"【胸罩】{bra_str} + 【内裤】{pan_str}"
+        else:
+            outfit["underwear"] = bra_str or pan_str
+
+    shoe_str = str(outfit.get("shoes") or "").strip()
+    acc_str = str(outfit.get("accessory") or "").strip()
+    if shoe_str or acc_str:
+        outfit["shoes_acc"] = "；".join([x for x in (shoe_str, acc_str) if x])
+
+    return outfit
+
+
 def select_outfit_for_context(
     temp_c: float | None,
     weather_desc: str,
@@ -1008,16 +1080,25 @@ def select_outfit_for_context(
     items_pool = all_items or WARDROBE_ITEMS
     t = temp_c if temp_c is not None else 20.0
     is_rainy = any(k in (weather_desc or "") for k in ("雨", "雷", "rain", "shower", "storm"))
-    picked: dict[str, dict[str, Any]] = {}
-    for slot in SLOTS:
-        pool = items_pool.get(slot) or WARDROBE_ITEMS[slot]
-        picked[slot] = _pick_slot_item(pool, t, is_weekend, is_rainy, style_hint)
-    # 若抽到旗袍/连身裙/睡裙等连体单品，下装自动匹配连身裙摆（免穿独立下装）
-    if is_onepiece_top(picked["top"]):
-        dress_bot = next((b for b in (items_pool.get("bottom") or WARDROBE_ITEMS["bottom"]) if b["id"] == "bot_dress_none"), None)
-        if dress_bot:
-            picked["bottom"] = dict(dress_bot)
-    return compose_outfit_from_items(picked)
+    composed: dict[str, Any] = {}
+    for _ in range(4):
+        picked: dict[str, dict[str, Any]] = {}
+        for slot in SLOTS:
+            pool = items_pool.get(slot) or WARDROBE_ITEMS[slot]
+            if slot == "bottom":
+                non_dress_pool = [b for b in pool if b.get("id") not in ("bot_dress_none", "bot_naked")]
+                if non_dress_pool:
+                    pool = non_dress_pool
+            picked[slot] = _pick_slot_item(pool, t, is_weekend, is_rainy, style_hint)
+        # 若抽到旗袍/连身裙/睡裙等连体单品，下装自动匹配连身裙摆（免穿独立下装）
+        if is_onepiece_top(picked["top"]):
+            dress_bot = next((b for b in (items_pool.get("bottom") or WARDROBE_ITEMS["bottom"]) if b["id"] == "bot_dress_none"), None)
+            if dress_bot:
+                picked["bottom"] = dict(dress_bot)
+        composed = compose_outfit_from_items(picked)
+        if not exclude_id or composed.get("id") != exclude_id:
+            break
+    return composed
 
 
 SLOT_DISHEVELED_RULES: dict[str, dict[str, str]] = {
@@ -1142,10 +1223,21 @@ def build_modular_outfit_tags(
 ) -> str:
     """将当前穿搭按 9 个独立部位槽位 ID 动态抽取纯正 Danbooru 词条积木并拼装去重。
     若上衣为旗袍/连衣裙等连体单品（is_onepiece_top），自动跳过下装槽位防止裤裙冲突。
+    若用户或 AI 手动指定了 custom_tags_override，则优先保留手动指定的 outfit_nai_tags。
     """
+    slot_states = outfit.get("slot_states") or {}
+    raw_custom = str(outfit.get("outfit_nai_tags", "") or "").strip(", ")
+    if outfit.get("custom_tags_override") and raw_custom:
+        extra_disheveled = [
+            SLOT_DISHEVELED_RULES[s].get("nai_tags", "").strip(", ")
+            for s, mode in slot_states.items()
+            if mode == "disheveled" and s in SLOT_DISHEVELED_RULES and SLOT_DISHEVELED_RULES[s].get("nai_tags")
+        ]
+        merged = ", ".join([raw_custom] + extra_disheveled) if extra_disheveled else raw_custom
+        return deduplicate_tag_string(merged)
+
     items_pool = all_items or WARDROBE_ITEMS
     extra_pool = _load_extra_slot_items()
-    slot_states = outfit.get("slot_states") or {}
 
     # 先检查 top 是否为连体单品
     top_tid = str(outfit.get("top_id", "") or "").strip()
@@ -1172,4 +1264,4 @@ def build_modular_outfit_tags(
                     blocks.append(d_tag)
     if blocks:
         return deduplicate_tag_string(", ".join(blocks))
-    return deduplicate_tag_string(str(outfit.get("outfit_nai_tags", "") or ""))
+    return deduplicate_tag_string(raw_custom)

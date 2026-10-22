@@ -29,6 +29,8 @@
     data: null,
     itemsBySlot: {},
     presets: [],
+    pendingItems: [],
+    editingPresetMeta: null,
     fullNaiTags: "",
     activeSlot: "outer",
     keyword: "",
@@ -37,6 +39,12 @@
     galleryKeyword: "",
     viewerIndex: -1,
   };
+
+  function escapeHtml(str) {
+    const span = document.createElement("span");
+    span.textContent = String(str == null ? "" : str);
+    return span.innerHTML;
+  }
 
   const el = {
     weatherText: document.getElementById("weatherText"),
@@ -74,11 +82,13 @@
     inlineEditBox: document.getElementById("inlineEditBox"),
     editCurrHair: document.getElementById("editCurrHair"),
     editCurrOuter: document.getElementById("editCurrOuter"),
+    editCurrAccessory: document.getElementById("editCurrAccessory"),
     editCurrTop: document.getElementById("editCurrTop"),
     editCurrBottom: document.getElementById("editCurrBottom"),
     editCurrBra: document.getElementById("editCurrBra"),
     editCurrPanties: document.getElementById("editCurrPanties"),
     editCurrLeg: document.getElementById("editCurrLeg"),
+    editCurrShoes: document.getElementById("editCurrShoes"),
     editCurrTags: document.getElementById("editCurrTags"),
     saveCurrDetailsBtn: document.getElementById("saveCurrDetailsBtn"),
     currNaiTags: document.getElementById("currNaiTags"),
@@ -212,14 +222,16 @@
     setSlotEl(el.currAccessory, "accessory", outfit.accessory || "--");
 
     el.statusInput.value = s.status_note || "";
-    el.editCurrHair.value = outfit.hair || "";
-    el.editCurrOuter.value = outfit.outer || "";
-    el.editCurrTop.value = outfit.top || outfit.top_bottom || "";
-    el.editCurrBottom.value = outfit.bottom || "";
-    el.editCurrBra.value = outfit.bra || "";
-    el.editCurrPanties.value = outfit.panties || "";
-    el.editCurrLeg.value = outfit.legwear_acc || outfit.legwear || "";
-    el.editCurrTags.value = outfit.outfit_nai_tags || "";
+    if (el.editCurrHair) el.editCurrHair.value = outfit.hair || "";
+    if (el.editCurrOuter) el.editCurrOuter.value = outfit.outer || "";
+    if (el.editCurrAccessory) el.editCurrAccessory.value = outfit.accessory || "";
+    if (el.editCurrTop) el.editCurrTop.value = outfit.top || outfit.top_bottom || "";
+    if (el.editCurrBottom) el.editCurrBottom.value = outfit.bottom || "";
+    if (el.editCurrBra) el.editCurrBra.value = outfit.bra || "";
+    if (el.editCurrPanties) el.editCurrPanties.value = outfit.panties || "";
+    if (el.editCurrLeg) el.editCurrLeg.value = outfit.legwear || outfit.legwear_acc || "";
+    if (el.editCurrShoes) el.editCurrShoes.value = outfit.shoes || "";
+    if (el.editCurrTags) el.editCurrTags.value = outfit.outfit_nai_tags || "";
 
     el.currNaiTags.textContent = state.fullNaiTags || outfit.outfit_nai_tags || "";
     const slotStates = outfit.slot_states || {};
@@ -409,6 +421,10 @@
       state.itemsBySlot = resp.items_by_slot || {};
       state.presets = Array.isArray(resp.presets) ? resp.presets : [];
       state.pendingItems = Array.isArray(resp.pending_items) ? resp.pending_items : [];
+      const titleEl = document.getElementById("wardrobeMainTitle");
+      if (titleEl && resp.config && resp.config.persona_name) {
+        titleEl.textContent = resp.config.persona_name + "的每日穿搭衣柜";
+      }
       renderCurrent();
       renderSlotItems();
       renderPresets();
@@ -466,14 +482,16 @@
     try {
       const resp = await bridge.apiPost("wardrobe/update_state", {
         status_note: el.statusInput.value,
-        hair: el.editCurrHair.value,
-        outer: el.editCurrOuter.value,
-        top: el.editCurrTop.value,
-        bottom: el.editCurrBottom.value,
-        bra: el.editCurrBra.value,
-        panties: el.editCurrPanties.value,
-        legwear_acc: el.editCurrLeg.value,
-        outfit_nai_tags: el.editCurrTags.value,
+        hair: el.editCurrHair ? el.editCurrHair.value : "",
+        outer: el.editCurrOuter ? el.editCurrOuter.value : "",
+        accessory: el.editCurrAccessory ? el.editCurrAccessory.value : "",
+        top: el.editCurrTop ? el.editCurrTop.value : "",
+        bottom: el.editCurrBottom ? el.editCurrBottom.value : "",
+        bra: el.editCurrBra ? el.editCurrBra.value : "",
+        panties: el.editCurrPanties ? el.editCurrPanties.value : "",
+        legwear: el.editCurrLeg ? el.editCurrLeg.value : "",
+        shoes: el.editCurrShoes ? el.editCurrShoes.value : "",
+        outfit_nai_tags: el.editCurrTags ? el.editCurrTags.value : "",
       });
       state.data = resp.state || {};
       state.fullNaiTags = resp.full_nai_tags || "";
@@ -539,6 +557,7 @@
 
   function openModal(preset) {
     const p = preset || {};
+    state.editingPresetMeta = p;
     el.modalTitle.textContent = p.id ? "编辑整套穿搭" : "保存为整套穿搭";
     el.formId.value = p.id || "";
     el.formName.value = p.name || "";
@@ -546,10 +565,10 @@
     el.formTempMax.value = p.temp_max ?? 30;
     el.formCategories.value = Array.isArray(p.categories) ? p.categories.join(", ") : "weekend_home, mild";
     el.formOuter.value = p.outer || "";
-    el.formTopBottom.value = p.top_bottom || "";
-    el.formUnderwear.value = p.underwear || "";
+    el.formTopBottom.value = p.top_bottom || [p.top, p.bottom].filter(Boolean).join("；") || "";
+    el.formUnderwear.value = p.underwear || [p.bra, p.panties].filter(Boolean).join("；") || "";
     el.formLegwear.value = p.legwear || "";
-    el.formShoes.value = p.shoes_acc || "";
+    el.formShoes.value = p.shoes_acc || [p.shoes, p.accessory].filter(Boolean).join("；") || "";
     el.formVibe.value = p.vibe || "";
     el.formNaiTags.value = p.outfit_nai_tags || "";
     el.presetModal.classList.remove("hidden");
@@ -561,19 +580,36 @@
 
   async function savePresetForm() {
     try {
+      const meta = state.editingPresetMeta || {};
       const payload = {
         id: el.formId.value.trim(),
         name: el.formName.value.trim(),
         temp_min: Number(el.formTempMin.value),
         temp_max: Number(el.formTempMax.value),
         categories: el.formCategories.value,
+        hair: meta.hair || "",
         outer: el.formOuter.value.trim(),
+        top: meta.top || "",
+        bottom: meta.bottom || "",
+        bra: meta.bra || "",
+        panties: meta.panties || "",
+        shoes: meta.shoes || "",
+        accessory: meta.accessory || "",
         top_bottom: el.formTopBottom.value.trim(),
         underwear: el.formUnderwear.value.trim(),
         legwear: el.formLegwear.value.trim(),
         shoes_acc: el.formShoes.value.trim(),
         vibe: el.formVibe.value.trim(),
         outfit_nai_tags: el.formNaiTags.value.trim(),
+        hair_id: meta.hair_id || "",
+        outer_id: meta.outer_id || "",
+        top_id: meta.top_id || "",
+        bottom_id: meta.bottom_id || "",
+        bra_id: meta.bra_id || "",
+        panties_id: meta.panties_id || "",
+        legwear_id: meta.legwear_id || "",
+        shoes_id: meta.shoes_id || "",
+        accessory_id: meta.accessory_id || "",
       };
       const resp = await bridge.apiPost("wardrobe/save_preset", payload);
       state.presets = Array.isArray(resp.presets) ? resp.presets : state.presets;
@@ -608,7 +644,7 @@
     try {
       const resp = await bridge.apiGet("wardrobe/gallery_thumb", { name: name, side: 360 });
       if (resp && resp.data_url) imgEl.src = resp.data_url;
-    } catch (_) {}
+    } catch (_) { }
   }
 
 
@@ -793,11 +829,12 @@
         el.viewerDownloadBtn.download = item.name;
       }
       const p = resp.params || {};
+      const sizeText = p.size || p.resolution || (item.width && item.height ? item.width + "x" + item.height : "");
       el.viewerMetaText.textContent =
         "时间：" + fmtTimeShort(item.mtime) +
         (p.model ? " · 模型：" + p.model : "") +
-        (p.size ? " · 尺寸：" + p.size : "");
-      el.viewerPromptPre.textContent = p.prompt || p.raw_prompt || "（该图片未附带参数记录文件）";
+        (sizeText ? " · 尺寸：" + sizeText : "");
+      el.viewerPromptPre.textContent = p.tag || p.prompt || p.raw_prompt || "（该图片未附带参数记录文件）";
     } catch (err) {
       el.viewerPromptPre.textContent = "读取失败：" + (err.message || err);
     }
@@ -823,14 +860,14 @@
       card.className = "preset-card";
       card.innerHTML =
         '<div class="preset-card-head">' +
-          '<div>' +
-            '<h3>🛍️ ' + (it.name || "待审批新衣") + '</h3>' +
-            '<span class="muted">部位：' + (SLOT_NAMES[it.slot] || it.slot || "上衣") + ' · 来源：' + (it.source_volume || "QuickTagCloud") + '</span>' +
-          '</div>' +
+        '<div>' +
+        '<h3>🛍️ ' + escapeHtml(it.name || "待审批新衣") + '</h3>' +
+        '<span class="muted">部位：' + escapeHtml(SLOT_NAMES[it.slot] || it.slot || "上衣") + ' · 来源：' + escapeHtml(it.source_volume || "QuickTagCloud") + '</span>' +
+        '</div>' +
         '</div>' +
         '<div class="preset-meta">' +
-          '<div><b>描述：</b>' + (it.desc || "") + '</div>' +
-          '<div style="word-break:break-all;"><b>详细 NAI Tags：</b>' + (it.nai_tags || "") + '</div>' +
+        '<div><b>描述：</b>' + escapeHtml(it.desc || "") + '</div>' +
+        '<div style="word-break:break-all;"><b>详细 NAI Tags：</b>' + escapeHtml(it.nai_tags || "") + '</div>' +
         '</div>';
       const actions = document.createElement("div");
       actions.className = "preset-actions";
@@ -859,8 +896,7 @@
           const resp = await bridge.apiPost("wardrobe/approve_pending", { id: it.id });
           state.pendingItems = Array.isArray(resp.pending_items) ? resp.pending_items : [];
           state.itemsBySlot = resp.items_by_slot || state.itemsBySlot;
-          renderPending();
-          renderSlotItems();
+          await loadAll();
           showToast("✅ 已正式收入永久衣柜：" + (it.name || ""));
         } catch (err) {
           showToast("审批失败：" + (err.message || err));
@@ -910,7 +946,7 @@
     if (el.reloadStateBtn) {
       el.reloadStateBtn.addEventListener("click", async () => {
         await loadAll();
-      await loadGallery();
+        await loadGallery();
         showToast("面板数据已刷新！");
       });
     }
@@ -964,8 +1000,8 @@
               quickTagResBox.innerHTML = items.map((it) => (
                 '<div style="padding:4px 0; border-bottom:1px dashed rgba(255,255,255,0.1); cursor:pointer;" title="点击采用此词条Tag" data-tags="' +
                 String(it.clean_tags || "").replace(/"/g, "&quot;") +
-                '"><b>[' + (it.volume || "词库") + '] ' + (it.title || "") + '</b>：' +
-                String(it.clean_tags || "").slice(0, 95) + '...</div>'
+                '"><b>[' + escapeHtml(it.volume || "词库") + '] ' + escapeHtml(it.title || "") + '</b>：' +
+                escapeHtml(String(it.clean_tags || "").slice(0, 95)) + '...</div>'
               )).join("");
               quickTagResBox.querySelectorAll("[data-tags]").forEach((row) => {
                 row.addEventListener("click", () => {
@@ -990,13 +1026,29 @@
         const curr = ((state.data || {}).outfit) || {};
         openModal({
           name: curr.name || "我的自定义混搭套装",
+          hair: curr.hair || "",
           outer: curr.outer || "",
-          top_bottom: curr.top_bottom || "",
-          underwear: curr.underwear || "",
+          top: curr.top || "",
+          bottom: curr.bottom || "",
+          bra: curr.bra || "",
+          panties: curr.panties || "",
           legwear: curr.legwear || "",
-          shoes_acc: curr.shoes_acc || "",
+          shoes: curr.shoes || "",
+          accessory: curr.accessory || "",
+          top_bottom: curr.top_bottom || [curr.top, curr.bottom].filter(Boolean).join("；") || "",
+          underwear: curr.underwear || [curr.bra, curr.panties].filter(Boolean).join("；") || "",
+          shoes_acc: curr.shoes_acc || [curr.shoes, curr.accessory].filter(Boolean).join("；") || "",
           vibe: curr.vibe || "",
           outfit_nai_tags: curr.outfit_nai_tags || "",
+          hair_id: curr.hair_id || "",
+          outer_id: curr.outer_id || "",
+          top_id: curr.top_id || "",
+          bottom_id: curr.bottom_id || "",
+          bra_id: curr.bra_id || "",
+          panties_id: curr.panties_id || "",
+          legwear_id: curr.legwear_id || "",
+          shoes_id: curr.shoes_id || "",
+          accessory_id: curr.accessory_id || "",
         });
       });
     }
@@ -1035,7 +1087,7 @@
         }
       });
     }
-    if (el.openFullGalleryBtn) el.openFullGalleryBtn.addEventListener("click", () => switchRightTab("gallery"));
+    if (el.openFullGalleryBtn) el.openFullGalleryBtn.addEventListener("click", () => switchMainPage("gallery"));
     if (el.reloadGalleryBtn) el.reloadGalleryBtn.addEventListener("click", () => loadGallery());
     if (el.sortGalleryBtn) {
       el.sortGalleryBtn.addEventListener("click", () => {
@@ -1058,7 +1110,7 @@
         try {
           await navigator.clipboard.writeText(el.viewerPromptPre.textContent || "");
           showToast("已复制该照片的 Prompt！");
-        } catch (_) {}
+        } catch (_) { }
       });
     }
     if (el.pickShowcaseBtn) {
@@ -1162,7 +1214,9 @@
 
     el.saveCurrDetailsBtn.addEventListener("click", saveInlineDetails);
 
-    el.copyNaiBtn.addEventListener("click", async () => {
+    el.copyNaiBtn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
       try {
         await navigator.clipboard.writeText(el.currNaiTags.textContent || "");
         showToast("已复制完整 NAI 生图 Tags！");

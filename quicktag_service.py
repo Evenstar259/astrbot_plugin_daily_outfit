@@ -37,7 +37,7 @@ CN_TO_DETAILED_NAI_TAGS: list[tuple[tuple[str, ...], str]] = [
     (("死库水", "连体泳衣"), "school swimsuit, competition swimsuit, one-piece swimsuit, highleg swimsuit, skindentation"),
     (("比基尼", "泳装"), "bikini, micro bikini, side-tie bikini bottom, string bikini, cleavage"),
     (("女仆", "女仆装"), "maid, maid headdress, maid apron, frilled apron, frilled dress, puffy short sleeves"),
-    (("兔女郎",), "playboy bunny, fake rabbit ears, bunny tail, strapless leotard, highleg leotard, wrist cuffs, bowighs"),
+    (("兔女郎",), "playboy bunny, fake rabbit ears, bunny tail, strapless leotard, highleg leotard, wrist cuffs, bowtie, pantyhose"),
     (("水手服", "JK", "校服"), "serafuku, sailor collar, neckerchief, pleated skirt, miniskirt"),
     (("地雷系",), "jirai kei, frilled shirt, black bowtie, ribbon, suspender skirt, pleated skirt"),
     (("天使界限", "亚文化"), "tenshi kaiwai, oversized hoodie, loose sleeves, leg warmers, hairband"),
@@ -189,19 +189,18 @@ def search_quicktag_clothing(query: str, limit: int = 12) -> list[dict[str, Any]
         db_path = _get_grimoire_db()
         if db_path:
             try:
-                conn = sqlite3.connect(str(db_path))
-                cur = conn.cursor()
-                tok0 = f"%{tokens[0]}%"
-                rows = cur.execute(
-                    """
-                    SELECT volume, category, title, tags
-                    FROM grimoire_entries
-                    WHERE title LIKE ? OR category LIKE ? OR tags LIKE ?
-                    LIMIT ?
-                    """,
-                    (tok0, tok0, tok0, limit * 2),
-                ).fetchall()
-                conn.close()
+                with sqlite3.connect(str(db_path)) as conn:
+                    cur = conn.cursor()
+                    tok0 = f"%{tokens[0]}%"
+                    rows = cur.execute(
+                        """
+                        SELECT volume, category, title, tags
+                        FROM grimoire_entries
+                        WHERE title LIKE ? OR category LIKE ? OR tags LIKE ?
+                        LIMIT ?
+                        """,
+                        (tok0, tok0, tok0, limit * 2),
+                    ).fetchall()
                 for vol, cat, title, raw_t in rows:
                     key = f"{vol}:{title}"
                     if key not in seen_titles:
@@ -264,6 +263,32 @@ def auto_generate_detailed_nai_tags(name: str, desc: str, existing_tags: str = "
     return ", ".join(final_tags)
 
 
+def infer_clothing_slot(title: str, category: str = "", tags: str = "") -> str:
+    """根据词条标题、分类与英文 Tag 智能推断所属的 9 部位槽位。"""
+    blob_cn = f"{title} {category}".lower()
+    blob_en = (tags or "").lower()
+    if any(k in blob_cn for k in ("发型", "双马尾", "单马尾", "丸子头", "麻花辫", "短发", "长发", "刘海", "盘发")):
+        return "hair"
+    if any(k in blob_cn for k in ("丝袜", "裤袜", "过膝袜", "长筒袜", "渔网袜", "网袜", "短袜", "袜子", "腿环", "吊袜带")):
+        return "legwear"
+    if any(k in blob_cn for k in ("高跟鞋", "靴子", "短靴", "长靴", "凉鞋", "拖鞋", "皮鞋", "运动鞋", "赤足", "光脚", "鞋")):
+        return "shoes"
+    if any(k in blob_cn for k in ("内裤", "丁字裤", "三角裤", "胖次", "t字裤")):
+        return "panties"
+    if any(k in blob_cn for k in ("胸罩", "文胸", "抹胸内衣", "胸贴")):
+        return "bra"
+    if any(k in blob_cn for k in ("外套", "开衫", "披肩", "风衣", "夹克", "西装外套", "外搭", "大衣", "羽绒服")) and not any(k in blob_cn for k in ("套装", "穿搭", "全套")):
+        return "outer"
+    if any(k in blob_cn for k in ("半身裙", "百褶裙", "短裤", "长裤", "牛仔裤", "包臀裙", "超短裙", "体操裤", "热裤")) and not any(k in blob_cn for k in ("连衣裙", "吊带裙", "套装", "水手服", "校服", "制服")):
+        return "bottom"
+    if any(k in blob_cn for k in ("项圈", "颈带", "耳环", "项链", "发饰", "头饰", "尾巴", "猫耳", "兔耳", "狐尾", "脚链", "手链", "眼镜", "首饰", "配饰")):
+        return "accessory"
+    if "pantyhose" in blob_en or "thighhighs" in blob_en:
+        if not any(k in blob_en for k in ("shirt", "dress", "skirt", "sweater", "leotard", "cheongsam", "uniform")):
+            return "legwear"
+    return "top"
+
+
 def discover_new_outfit_candidate(
     temp_c: float = 20.0,
     style_hint: str = "",
@@ -296,7 +321,7 @@ def discover_new_outfit_candidate(
                 candidates.append(it)
 
     if not candidates:
-        candidates = codex_items
+        candidates = [it for it in codex_items if str(it.get("title") or "").strip() not in excl] or codex_items
 
     chosen = random.choice(candidates)
     title = str(chosen.get("title") or "新潮穿搭").strip()
@@ -304,12 +329,13 @@ def discover_new_outfit_candidate(
     cat = str(chosen.get("category") or "精选服饰").strip()
     clean_t = clean_codex_tags(str(chosen.get("tags") or ""))
     detailed_t = auto_generate_detailed_nai_tags(title, cat, clean_t)
+    inferred_slot = infer_clothing_slot(title, cat, detailed_t)
 
     cand_id = f"pending_{int(_time.time() * 1000) % 100000000}"
     return {
         "id": cand_id,
         "kind": "item",
-        "slot": "top",
+        "slot": inferred_slot,
         "source_volume": vol,
         "source_category": cat,
         "name": f"{title}",
