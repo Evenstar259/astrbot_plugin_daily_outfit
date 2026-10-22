@@ -1,3 +1,18 @@
+# astrbot_plugin_daily_outfit — 9-Slot Modular Wardrobe & Outfit Codex for AstrBot
+
+## Overview (English)
+
+**`astrbot_plugin_daily_outfit`** is an open-source, modular 9-slot daily outfit & visual tag management plugin for [AstrBot](https://github.com/AstrBotDevs/AstrBot) AI companions.
+
+- **9-Slot Modular Wardrobe Architecture**: Independently manages `hair`, `outer`, `top`, `bottom`, `bra`, `panties`, `legwear`, `shoes`, and `accessory` slots with automatic conflict resolution (e.g., one-piece dresses/cheongsams vs. separate bottoms) and per-slot disheveled/stripped state rules.
+- **Offline QuickTag Clothing Codex**: Ships with **4,559+ curated Danbooru / NovelAI clothing & styling tag combinations** for zero-latency local search and automatic high-detail prompt completion.
+- **Weather-Aware Daily Outfit Engine**: Automatically composes context-appropriate outfits based on local temperature, weather conditions, and weekday/weekend schedules.
+- **Interactive WebUI Control Panel**: Features a responsive glassmorphism WebUI (`pages/wardrobe/`) for browsing slot items, approving AI-discovered clothing candidates, managing custom presets, and previewing synchronized character galleries.
+- **Primary Maintainer**: [@Evenstar259](https://github.com/Evenstar259)
+- **License**: [MIT License](./LICENSE)
+
+---
+
 # 👗 每日穿搭衣柜 (`astrbot_plugin_daily_outfit` v2.0.0)
 
 面向 AstrBot 的 **9 部位模块化每日穿搭衣柜插件**。支持实时天气感知自动配装、单部位衣损/穿脱状态控制、内置 **4,559 条 QuickTagCloud 服饰词库** 增强与可视化 WebUI 换装管理面板，并可与 `astrbot_plugin_nai_image` (NAI 生图插件) 无缝联动。
